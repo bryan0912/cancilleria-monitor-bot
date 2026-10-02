@@ -2,9 +2,7 @@ name: Monitor Cancilleria
 
 on:
   schedule:
-    # Se ejecuta al minuto 0 de cada hora (formato Cron UTC)
     - cron: '0 * * * *'
-  # Permite ejecutarlo manualmente desde la pestaña Actions de GitHub
   workflow_dispatch:
 
 jobs:
@@ -13,10 +11,10 @@ jobs:
 
     steps:
       - name: Descargar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -34,4 +32,5 @@ jobs:
           FECHA_EXPEDICION: ${{ secrets.FECHA_EXPEDICION }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python monitor.py
+        # ⚠️ Asegúrate de que este nombre coincida con tu archivo .py real:
+        run: python monitor_cancilleria.py
