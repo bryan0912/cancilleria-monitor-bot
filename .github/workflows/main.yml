@@ -1,0 +1,38 @@
+name: Monitor Cancillería
+
+on:
+  schedule:
+    # Cada 30 minutos
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Ejecutar monitor
+        env:
+          CEDULA: ${{ secrets.CEDULA }}
+          CORREO: ${{ secrets.CORREO }}
+          FECHA_EXPEDICION: ${{ secrets.FECHA_EXPEDICION }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          DRY_RUN: "false"
+        run: python monitor_cancilleria.py
