@@ -1,0 +1,40 @@
+[project]
+name = "monitor-cancilleria"
+version = "0.1.0"
+description = "Monitor del trámite de apostilla de antecedentes judiciales para España"
+requires-python = ">=3.11"
+
+# =============================================================
+# Ruff: linter + formateador
+# =============================================================
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "venv", "__pycache__"]
+
+[tool.ruff.lint]
+# Reglas que Ruff revisa
+select = [
+    "E",   # errores de estilo (PEP 8)
+    "F",   # errores lógicos (variables no usadas, imports no usados, etc.)
+    "I",   # orden de imports
+    "B",   # bugs comunes (flake8-bugbear)
+    "UP",  # sugerencias de modernización
+    "S",   # seguridad básica (bandit)
+]
+ignore = [
+    "E501",  # línea muy larga (ya lo controlamos con line-length)
+    "S101",  # uso de assert (necesario en tests)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# En tests ignoramos reglas de seguridad y bugbear
+"tests/*" = ["S", "B"]
+
+# =============================================================
+# pytest
+# =============================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -1,12 +1,11 @@
+import logging
 import os
 import sys
-import time
-import logging
-
 
 import requests
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
+from playwright.sync_api import TimeoutError as PWTimeout
+from playwright.sync_api import sync_playwright
 
 # ---------- Configuración ----------
 load_dotenv()
@@ -31,15 +30,20 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+
 # ---------- Validación de variables ----------
 def validar_variables():
-    faltantes = [k for k, v in {
-        "CEDULA": CEDULA,
-        "CORREO": CORREO,
-        "FECHA_EXPEDICION": FECHA_EXPEDICION,
-        "BOT_TOKEN": BOT_TOKEN,
-        "CHAT_ID": CHAT_ID,
-    }.items() if not v]
+    faltantes = [
+        k
+        for k, v in {
+            "CEDULA": CEDULA,
+            "CORREO": CORREO,
+            "FECHA_EXPEDICION": FECHA_EXPEDICION,
+            "BOT_TOKEN": BOT_TOKEN,
+            "CHAT_ID": CHAT_ID,
+        }.items()
+        if not v
+    ]
     if faltantes:
         log.error(f"Faltan variables de entorno: {', '.join(faltantes)}")
         sys.exit(1)
@@ -164,9 +168,7 @@ def verificar_tramite() -> bool:
 
             page.wait_for_timeout(1000)
             log.info("Avanzando al Paso 2...")
-            btn1 = page.locator(
-                "input[id*='btnContinuar'], input[value*='Continuar']"
-            ).first
+            btn1 = page.locator("input[id*='btnContinuar'], input[value*='Continuar']").first
             btn1.scroll_into_view_if_needed()
             page.evaluate("btn => btn.click()", btn1.element_handle())
 
@@ -206,8 +208,7 @@ def verificar_tramite() -> bool:
             page.wait_for_timeout(1500)
 
             campo_fecha = page.locator(
-                "input[id*='txtFechaExpedicion'], "
-                "input[id*='FechaExpedicion'], input[type='text']"
+                "input[id*='txtFechaExpedicion'], input[id*='FechaExpedicion'], input[type='text']"
             ).first
             campo_fecha.wait_for(state="visible")
             campo_fecha.scroll_into_view_if_needed()
@@ -216,9 +217,7 @@ def verificar_tramite() -> bool:
             page.wait_for_timeout(500)
 
             log.info("Avanzando al Paso 3...")
-            btn2 = page.locator(
-                "input[id*='btnContinuar'], input[value*='Continuar']"
-            ).first
+            btn2 = page.locator("input[id*='btnContinuar'], input[value*='Continuar']").first
             btn2.scroll_into_view_if_needed()
             page.evaluate("btn => btn.click()", btn2.element_handle())
 
@@ -260,8 +259,7 @@ def verificar_tramite() -> bool:
 
             log.info("Clic en Continuar final...")
             btn_final = page.locator(
-                "input[id*='btnContinuar'], input[value*='Continuar'], "
-                "button:has-text('Continuar')"
+                "input[id*='btnContinuar'], input[value*='Continuar'], button:has-text('Continuar')"
             ).first
             btn_final.scroll_into_view_if_needed()
             page.evaluate("btn => btn.click()", btn_final.element_handle())
@@ -269,7 +267,6 @@ def verificar_tramite() -> bool:
             log.info("Esperando respuesta del sistema...")
             page.wait_for_timeout(7000)
 
-                       
             # ---------- Evaluación ----------
             texto = ""
             for _ in range(5):
@@ -287,8 +284,6 @@ def verificar_tramite() -> bool:
                 "se ha presentado un error",
                 "no hay citas disponibles",
             ]
-
-            
 
             # --- Evaluación del resultado ---
             hay_error = any(msg in texto for msg in mensajes_error)
@@ -325,8 +320,8 @@ def verificar_tramite() -> bool:
         finally:
             try:
                 browser.close()
-            except Exception:
-                pass
+            except Exception as e:
+                log.warning(f"Error cerrando el navegador: {e}")
 
 
 # ---------- Entrypoint ----------
