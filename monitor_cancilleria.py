@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import logging
-from pathlib import Path
+
 
 import requests
 from dotenv import load_dotenv
@@ -269,6 +269,7 @@ def verificar_tramite() -> bool:
             log.info("Esperando respuesta del sistema...")
             page.wait_for_timeout(7000)
 
+                       
             # ---------- Evaluación ----------
             texto = ""
             for _ in range(5):
@@ -287,29 +288,36 @@ def verificar_tramite() -> bool:
                 "no hay citas disponibles",
             ]
 
+            
+
+            # --- Evaluación del resultado ---
             hay_error = any(msg in texto for msg in mensajes_error)
 
-            # Mejor: buscar señal POSITIVA además de ausencia de error
-            if texto and not hay_error:
-                # Ajusta esta señal a algo que solo aparezca cuando SÍ avanza
-                señales_exito = ["resumen", "confirmaci", "datos del solicitante", "certificado"]
-                exito = any(s in texto for s in señales_exito)
+            # Palabras que SOLO aparecen cuando el sitio avanzó a la pantalla de pago
+            # (confirmadas con el debug del sitio real)
+            señales_exito = ["forma de pago", "crear solicitud", "datos documento"]
+            exito = any(s in texto for s in señales_exito) and not hay_error
 
-                if exito:
-                    mensaje = (
-                        "🚨 <b>¡ATENCIÓN!</b> El trámite de antecedentes para España "
-                        "parece estar funcional.\n\n"
-                        f"Entra de inmediato: {URL_INICIO}"
-                    )
-                    log.info(">>> POSIBLE DISPONIBILIDAD DETECTADA <<<")
-                    enviar_alerta_telegram(mensaje)
-                    return True
-                else:
-                    log.info("Sin señal clara de éxito. Sin cambios.")
+            if exito:
+                mensaje = (
+                    "✅ <b>TRÁMITE DISPONIBLE</b>\n\n"
+                    "El certificado de antecedentes para España está abierto "
+                    "y listo para continuar con el pago.\n"
+                    f"Entra: {URL_INICIO}"
+                )
+                log.info(">>> DISPONIBLE <<<")
             else:
-                log.info("Sistema fuera de servicio o con error conocido.")
+                mensaje = (
+                    "❌ <b>TRÁMITE NO DISPONIBLE</b>\n\n"
+                    "El sistema sigue fuera de servicio o sin disponibilidad "
+                    "para España. Intenta más tarde.\n"
+                    f"URL: {URL_INICIO}"
+                )
+                log.info(">>> NO DISPONIBLE <<<")
 
-            return False
+            # Siempre enviamos mensaje a Telegram (éxito o no)
+            enviar_alerta_telegram(mensaje)
+            return exito
 
         except Exception as e:
             log.exception(f"Error durante el recorrido: {e}")
