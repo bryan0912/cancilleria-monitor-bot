@@ -3,9 +3,11 @@
 
 # 🛰️ Monitor Cancillería — Antecedentes Judiciales para España
 
+[![CI](https://github.com/bryan0912/cancilleria-monitor-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/bryan0912/cancilleria-monitor-bot/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Playwright](https://img.shields.io/badge/playwright-automation-green)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-black)
+
 
 Bot en **Python** que automatiza la consulta del estado del trámite de
 **Certificado de Antecedentes Judiciales** de la Cancillería de Colombia
